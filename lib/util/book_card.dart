@@ -1,39 +1,63 @@
+
 import 'package:flutter/material.dart';
+import '../pages/explore_page.dart';
+import 'global_books.dart';
 
-class Book {
-  final String name;
-  final String icon;
+List<Book> books = [];
+class BookCard extends StatefulWidget {
+  final Book book;
+  final VoidCallback onToggleAdded;
 
-  Book({required this.name, required this.icon});
+  BookCard({required this.book, required this.onToggleAdded});
+
+  @override
+  _BookCardState createState() => _BookCardState();
 }
 
-List<Book> books = [
-  Book(name: 'Science', icon: 'assets/icons/science.png'),
-  Book(name: 'History', icon: 'assets/icons/history.jpg'),
-  Book(name: 'Fiction', icon: 'assets/icons/fiction.png'),
-
-  // Add more books here
-];
-
-class BookCard extends StatelessWidget {
-  final Book book;
-
-  BookCard({required this.book});
-
+class _BookCardState extends State<BookCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: InkWell(
-        onTap: () {
-          // Handle the tap
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset(book.icon, width: 50, height: 50),
-            Text(book.name),
-          ],
-        ),
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: (){
+              widget.onToggleAdded();
+              setState(() {
+                // This assumes book.isAdded is a part of the Book model
+                widget.book.isAdded = true;
+
+              });},
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded( // Use Expanded to allow the image to take up all available space
+                  child: Image.network(
+                    widget.book.icon,
+                    fit: BoxFit.cover, // This ensures the image covers the card area without stretching
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0), // Add some padding around the text
+                  child: Text(
+                    widget.book.name,
+                    style: Theme.of(context).textTheme.headline6,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+          Positioned(
+            right: 8,
+            top: 8,
+            child: Icon(
+              widget.book.isAdded ? Icons.check : Icons.add,
+              color: widget.book.isAdded ? Colors.green : Colors.grey,
+            ),
+          ),
+        ],
       ),
     );
   }
