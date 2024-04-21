@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:practice_proj/pages/books_page.dart';
 import 'dart:convert';
 import 'drawer.dart';
 import '../util/book_card.dart';
@@ -23,7 +23,8 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Future<List<Book>> fetchBooks(String query) async {
-    final url = Uri.parse('https://www.googleapis.com/books/v1/volumes?q=$query&maxResults=10&key=AIzaSyDfp3NASLl6f_tbd7zbo490R8grLqW1psk');
+    final url = Uri.parse(
+        'https://www.googleapis.com/books/v1/volumes?q=$query&maxResults=10&key=AIzaSyDfp3NASLl6f_tbd7zbo490R8grLqW1psk');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -69,7 +70,8 @@ class _ExplorePageState extends State<ExplorePage> {
                   icon: Icon(Icons.search),
                   onPressed: () => updateSearchQuery(searchController.text),
                 ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
               ),
               onSubmitted: updateSearchQuery,
             ),
@@ -94,17 +96,19 @@ class _ExplorePageState extends State<ExplorePage> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       Book book = snapshot.data![index];
+
                       return BookCard(
-                        book: book,
-                        onToggleAdded: () {
-                          if (!book.isAdded) {
-                            setState(() {
-                              book.isAdded = true;  // Mark the book as added
-                              books.add(book);      // Add the book to the global 'books' list used by BooksPage
-                            });
-                          }
-                        },
-                      );
+                          book: book,
+                          onToggleAdded: () {
+                            if (!book.isAdded) {
+                              setState(() {
+                                book.isAdded = true; // Mark the book as added
+                                if (unique_books.add(book.name)) {
+                                  books.add(book);
+                                }
+                              });
+                            }
+                          });
                     },
                   );
                 } else {
@@ -126,7 +130,12 @@ class Book {
   final List<String> categories;
   bool isAdded;
 
-  Book({required this.name, required this.icon, required this.authors, required this.categories, this.isAdded = false});
+  Book(
+      {required this.name,
+      required this.icon,
+      required this.authors,
+      required this.categories,
+      this.isAdded = false});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     List<String> parseAuthors(json) {
@@ -134,7 +143,9 @@ class Book {
     }
 
     List<String> parseCategories(json) {
-      return json['categories'] != null ? List<String>.from(json['categories']) : [];
+      return json['categories'] != null
+          ? List<String>.from(json['categories'])
+          : [];
     }
 
     return Book(
@@ -146,5 +157,3 @@ class Book {
     );
   }
 }
-
-

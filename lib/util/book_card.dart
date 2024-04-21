@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import '../pages/explore_page.dart';
 import 'global_books.dart';
 
 List<Book> books = [];
+
 class BookCard extends StatefulWidget {
   final Book book;
   final VoidCallback onToggleAdded;
@@ -21,31 +21,33 @@ class _BookCardState extends State<BookCard> {
       child: Stack(
         children: [
           InkWell(
-            onTap: (){
+            onTap: () {
               widget.onToggleAdded();
               setState(() {
                 // This assumes book.isAdded is a part of the Book model
                 widget.book.isAdded = true;
-
-              });},
+              });
+            },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Expanded( // Use Expanded to allow the image to take up all available space
+                Expanded(
+                  // Use Expanded to allow the image to take up all available space
                   child: Image.network(
                     widget.book.icon,
-                    fit: BoxFit.cover, // This ensures the image covers the card area without stretching
+                    fit: BoxFit
+                        .cover, // This ensures the image covers the card area without stretching
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(8.0), // Add some padding around the text
+                  padding:
+                      EdgeInsets.all(8.0), // Add some padding around the text
                   child: Text(
                     widget.book.name,
                     style: Theme.of(context).textTheme.headline6,
                     textAlign: TextAlign.center,
                   ),
                 ),
-
               ],
             ),
           ),
