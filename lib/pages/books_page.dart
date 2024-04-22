@@ -32,6 +32,13 @@ class _BooksPageState extends State<BooksPage> {
     });
   }
 
+  void removeBook(Book book) {
+    setState(() {
+      filtered_books.remove(book);
+      book.isAdded = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print(filter_genres);
@@ -77,6 +84,8 @@ class _BooksPageState extends State<BooksPage> {
                     .toList(); // Filter the books list
               });
             },
+            onRemove: () => removeBook(filtered_books[index]),
+            showActions: true,
           );
         },
       ),

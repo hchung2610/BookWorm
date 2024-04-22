@@ -7,8 +7,16 @@ List<Book> books = [];
 class BookCard extends StatefulWidget {
   final Book book;
   final VoidCallback onToggleAdded;
+  final VoidCallback onRemove;
+  final bool showActions;
 
-  BookCard({required this.book, required this.onToggleAdded});
+  BookCard({
+    super.key,
+    required this.book,
+    required this.onToggleAdded,
+    required this.onRemove,
+    this.showActions = false,
+  });
 
   @override
   _BookCardState createState() => _BookCardState();
@@ -44,10 +52,19 @@ class _BookCardState extends State<BookCard> {
                       EdgeInsets.all(8.0), // Add some padding around the text
                   child: Text(
                     widget.book.name,
-                    style: Theme.of(context).textTheme.headline6,
+                    style: Theme.of(context).textTheme.titleLarge,
                     textAlign: TextAlign.center,
                   ),
                 ),
+                if (widget.showActions) // Render actions conditionally
+                  ElevatedButton(
+                    onPressed: widget.onRemove,
+                    child: const Text('Remove'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.red, // Text color
+                    ),
+                  ),
               ],
             ),
           ),

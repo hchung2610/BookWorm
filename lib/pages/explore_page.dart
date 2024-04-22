@@ -49,6 +49,22 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  void _removeBook(Book book) {
+    setState(() {
+      books.removeWhere((b) =>
+          b.name == book.name &&
+          b.authors.join(", ") == book.authors.join(", "));
+      book.isAdded =
+          false; // Optionally reset the isAdded flag if you use it to track state in UI
+      // Optionally refresh the displayedBooks or handle the UI update
+      books.remove(book);
+      filtered_books.remove(book);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${book.name} removed from your collection")));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,17 +114,25 @@ class _ExplorePageState extends State<ExplorePage> {
                       Book book = snapshot.data![index];
 
                       return BookCard(
-                          book: book,
-                          onToggleAdded: () {
-                            if (!book.isAdded) {
-                              setState(() {
-                                book.isAdded = true; // Mark the book as added
-                                if (unique_books.add(book.name)) {
-                                  books.add(book);
-                                }
-                              });
-                            }
-                          });
+                        book: book,
+                        onToggleAdded: () {
+                          if (!book.isAdded) {
+                            setState(() {
+                              book.isAdded = true; // Mark the book as added
+                              if (unique_books.add(book.name)) {
+                                books.add(book);
+                              } else {
+                                final snackbar = SnackBar(
+                                    content: const Text(
+                                        'Error: Cannot Add Existing Book'));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackbar);
+                              }
+                            });
+                          }
+                        },
+                        onRemove: () => _removeBook(books[index]),
+                      );
                     },
                   );
                 } else {
