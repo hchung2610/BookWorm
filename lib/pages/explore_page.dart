@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practice_proj/pages/books_page.dart';
+import 'package:practice_proj/pages/detailed_view.dart';
 import 'dart:convert';
 import 'drawer.dart';
 import '../util/book_card.dart';
@@ -168,12 +169,12 @@ class Book {
       return json['authors'] != null ? List<String>.from(json['authors']) : [];
     }
 
-
     List<String> parseCategories(json) {
       return json['categories'] != null
           ? List<String>.from(json['categories'])
           : [];
     }
+
     int defaultRating = 1;
 
     return Book(

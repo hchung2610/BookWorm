@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:practice_proj/pages/detailed_view.dart";
 import "package:practice_proj/pages/filter_page.dart";
 import "../util/book_card.dart";
 import "drawer.dart";
@@ -67,6 +68,7 @@ class _BooksPageState extends State<BooksPage> {
         itemCount: filtered_books
             .length, // Assumes 'books' is a global list of added books
         itemBuilder: (context, index) {
+          Book curr_book = filtered_books[index];
           print(filtered_books[index].name +
               " " +
               filtered_books[index].categories.toString());
@@ -74,15 +76,18 @@ class _BooksPageState extends State<BooksPage> {
             genres.add([filtered_books[index].categories[0].toString(), false]);
           }
           return BookCard(
-            book: filtered_books[index],
+            book: curr_book,
             onToggleAdded: () {
-              // This would toggle the added state and remove from the global list
-              setState(() {
-                books[index].isAdded = !books[index].isAdded;
-                books = books
-                    .where((book) => book.isAdded)
-                    .toList(); // Filter the books list
-              });
+              // Opening the detailed view o tap
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailedView(
+                        title: curr_book.name,
+                        author: curr_book.authors,
+                        genre: curr_book.categories,
+                        icon: curr_book.icon),
+                  ));
             },
             onRemove: () => removeBook(filtered_books[index]),
             showActions: true,

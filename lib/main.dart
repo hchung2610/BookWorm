@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:practice_proj/pages/books_page.dart';
+import 'package:practice_proj/pages/detailed_view.dart';
 import 'package:practice_proj/pages/filter_page.dart';
-import 'pages/books_page.dart';
+import 'package:practice_proj/pages/detailed_view.dart';
 import 'pages/settings_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/explore_page.dart';
