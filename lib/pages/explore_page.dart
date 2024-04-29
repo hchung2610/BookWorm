@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:practice_proj/pages/books_page.dart';
+import 'package:practice_proj/pages/detailed_view.dart';
 import 'dart:convert';
 import 'drawer.dart';
 import '../util/book_card.dart';
@@ -23,7 +24,8 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Future<List<Book>> fetchBooks(String query) async {
-    final url = Uri.parse('https://www.googleapis.com/books/v1/volumes?q=$query&maxResults=10&key=AIzaSyDfp3NASLl6f_tbd7zbo490R8grLqW1psk');
+    final url = Uri.parse(
+        'https://www.googleapis.com/books/v1/volumes?q=$query&maxResults=10&key=AIzaSyDfp3NASLl6f_tbd7zbo490R8grLqW1psk');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -48,6 +50,22 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  void _removeBook(Book book) {
+    setState(() {
+      books.removeWhere((b) =>
+          b.name == book.name &&
+          b.authors.join(", ") == book.authors.join(", "));
+      book.isAdded =
+          false; // Optionally reset the isAdded flag if you use it to track state in UI
+      // Optionally refresh the displayedBooks or handle the UI update
+      books.remove(book);
+      filtered_books.remove(book);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${book.name} removed from your collection")));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +87,8 @@ class _ExplorePageState extends State<ExplorePage> {
                   icon: Icon(Icons.search),
                   onPressed: () => updateSearchQuery(searchController.text),
                 ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
               ),
               onSubmitted: updateSearchQuery,
             ),
@@ -94,16 +113,26 @@ class _ExplorePageState extends State<ExplorePage> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       Book book = snapshot.data![index];
+
                       return BookCard(
                         book: book,
                         onToggleAdded: () {
                           if (!book.isAdded) {
                             setState(() {
-                              book.isAdded = true;  // Mark the book as added
-                              books.add(book);      // Add the book to the global 'books' list used by BooksPage
+                              book.isAdded = true; // Mark the book as added
+                              if (unique_books.add(book.name)) {
+                                books.add(book);
+                              } else {
+                                final snackbar = SnackBar(
+                                    content: const Text(
+                                        'Error: Cannot Add Existing Book'));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackbar);
+                              }
                             });
                           }
                         },
+                        onRemove: () => _removeBook(books[index]),
                       );
                     },
                   );
@@ -125,8 +154,15 @@ class Book {
   final List<String> authors;
   final List<String> categories;
   bool isAdded;
+  int rating;
 
-  Book({required this.name, required this.icon, required this.authors, required this.categories, this.isAdded = false});
+  Book(
+      {required this.name,
+      required this.icon,
+      required this.authors,
+      required this.categories,
+      this.isAdded = false,
+      this.rating = 1});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     List<String> parseAuthors(json) {
@@ -134,17 +170,20 @@ class Book {
     }
 
     List<String> parseCategories(json) {
-      return json['categories'] != null ? List<String>.from(json['categories']) : [];
+      return json['categories'] != null
+          ? List<String>.from(json['categories'])
+          : [];
     }
+
+    int defaultRating = 1;
 
     return Book(
       name: json['title'] ?? 'Untitled',
       icon: json['imageLinks'] != null ? json['imageLinks']['thumbnail'] : '',
       authors: parseAuthors(json),
       categories: parseCategories(json),
-      isAdded: false,
+      isAdded: json['isAdded'] ?? false,
+      rating: json['rating'] ?? defaultRating,
     );
   }
 }
-
-
