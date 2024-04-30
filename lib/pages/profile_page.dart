@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:practice_proj/pages/books_page.dart';
 import 'drawer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -14,17 +15,15 @@ class _ProfilePageState extends State {
   File? _image;
 
   // Function to handle image picking
-  Future<void> _pickImage() async {
-    try {
-      final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
-      }
-    } catch (e) {
-      // Handle exceptions or errors if any
-      print('Failed to pick image: $e');
+  Future _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile!.path);
+      });
+    } else {
+      return;
     }
   }
 
@@ -45,7 +44,8 @@ class _ProfilePageState extends State {
               backgroundColor: Colors.grey.shade300,
               backgroundImage: _image != null ? FileImage(_image!) : null,
               child: _image == null
-                  ? Icon(Icons.camera_alt, size: 80, color: Colors.grey.shade800)
+                  ? Icon(Icons.camera_alt,
+                      size: 80, color: Colors.grey.shade800)
                   : null,
             ),
             const SizedBox(height: 20),
@@ -55,14 +55,16 @@ class _ProfilePageState extends State {
             ),
             const SizedBox(height: 10),
             const Text(
-              'Jane Doe',
+              'John Doe',
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              'Member since 2019',
+              'You have ' +
+                  filtered_books.length.toString() +
+                  " books in your library.",
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.grey[800],
@@ -73,21 +75,7 @@ class _ProfilePageState extends State {
               title: const Text('Borrowed Books'),
               leading: const Icon(Icons.book, color: Colors.blue),
               onTap: () {
-                // Navigate to borrowed books page
-              },
-            ),
-            ListTile(
-              title: const Text('Book History'),
-              leading: const Icon(Icons.history, color: Colors.green),
-              onTap: () {
-                // Navigate to book history page
-              },
-            ),
-            ListTile(
-              title: const Text('Dark Mode'),
-              leading: const Icon(Icons.settings, color: Colors.grey),
-              onTap: () {
-                // Navigate to settings page
+                Navigator.pushNamed(context, "/books");
               },
             ),
           ],
