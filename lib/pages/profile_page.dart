@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:practice_proj/pages/books_page.dart';
 import 'drawer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+File? _image;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -12,18 +15,19 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State {
-  File? _image;
-
   // Function to handle image picking
-  Future _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile!.path);
-      });
-    } else {
-      return;
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile =
+          await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _image = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      // Handle exceptions or errors if any
+      print('Failed to pick image: $e');
     }
   }
 
@@ -39,14 +43,17 @@ class _ProfilePageState extends State {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            CircleAvatar(
-              radius: 80,
-              backgroundColor: Colors.grey.shade300,
-              backgroundImage: _image != null ? FileImage(_image!) : null,
-              child: _image == null
-                  ? Icon(Icons.camera_alt,
-                      size: 80, color: Colors.grey.shade800)
-                  : null,
+            Padding(
+              padding: EdgeInsets.only(top: 15),
+              child: CircleAvatar(
+                radius: 80,
+                backgroundColor: Colors.grey.shade300,
+                backgroundImage: _image != null ? FileImage(_image!) : null,
+                child: _image == null
+                    ? Icon(Icons.camera_alt,
+                        size: 80, color: Colors.grey.shade800)
+                    : null,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -55,7 +62,7 @@ class _ProfilePageState extends State {
             ),
             const SizedBox(height: 10),
             const Text(
-              'John Doe',
+              "John Smith",
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -72,10 +79,45 @@ class _ProfilePageState extends State {
             ),
             const SizedBox(height: 20),
             ListTile(
-              title: const Text('Borrowed Books'),
-              leading: const Icon(Icons.book, color: Colors.blue),
+              title: const Text(
+                'Reading Goals',
+                style: TextStyle(fontSize: 20),
+              ),
+              leading: const Icon(
+                Icons.emoji_events,
+                color: Color.fromARGB(255, 31, 154, 88),
+                size: 30,
+              ),
               onTap: () {
-                Navigator.pushNamed(context, "/books");
+                // Navigate to book history page
+              },
+            ),
+            ListTile(
+              title: const Text(
+                'Current Books',
+                style: TextStyle(fontSize: 20),
+              ),
+              leading: const Icon(
+                Icons.book,
+                color: Colors.blue,
+                size: 30,
+              ),
+              onTap: () {
+                // Navigate to borrowed books page
+              },
+            ),
+            ListTile(
+              title: const Text(
+                'Dark Mode',
+                style: TextStyle(fontSize: 20),
+              ),
+              leading: const Icon(
+                Icons.settings,
+                color: Colors.grey,
+                size: 30,
+              ),
+              onTap: () {
+                // Navigate to settings page
               },
             ),
           ],
