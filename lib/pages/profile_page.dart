@@ -4,6 +4,7 @@ import 'package:practice_proj/pages/books_page.dart';
 import 'drawer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'ReadingGoalsPage.dart';
 
 File? _image;
 
@@ -90,6 +91,10 @@ class _ProfilePageState extends State {
               ),
               onTap: () {
                 // Navigate to book history page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ReadingGoalsPage()),
+                );
               },
             ),
             ListTile(

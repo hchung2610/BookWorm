@@ -22,10 +22,21 @@ class _DetailedViewState extends State<DetailedView> {
   SharedPreferences? _prefs;
   List<Map<String, String>> notes = [];
 
+  bool isFinished = false;
+
   @override
   void initState() {
     super.initState();
     _loadNotes();
+    _loadState();
+  }
+
+  void _loadState() async {
+    _prefs = await SharedPreferences.getInstance();
+    // Load the finished status using a unique key, here it is based on the book's title
+    setState(() {
+      isFinished = _prefs?.getBool('finished_${widget.title}') ?? false;
+    });
   }
 
   void _loadNotes() async {
@@ -123,6 +134,24 @@ class _DetailedViewState extends State<DetailedView> {
     );
   }
 
+  void _toggleFinished() {
+    setState(() {
+      isFinished = !isFinished;
+      // Save the updated status using the same unique key
+      _prefs?.setBool('finished_${widget.title}', isFinished);
+
+      // Update the list of finished books based on the new state
+      List<String> finishedBooks = _prefs?.getStringList('finishedBooks') ?? [];
+      if (isFinished && !finishedBooks.contains(widget.title)) {
+        finishedBooks.add(widget.title);
+      } else if (!isFinished && finishedBooks.contains(widget.title)) {
+        finishedBooks.remove(widget.title);
+      }
+      _prefs?.setStringList('finishedBooks', finishedBooks);
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -190,6 +219,14 @@ class _DetailedViewState extends State<DetailedView> {
               )),
             ]),
             Divider(),
+            SwitchListTile(
+              title: Text(
+                "Mark as Finished",
+                style: TextStyle(fontSize: 18),
+              ),
+              value: isFinished,
+              onChanged: (_) => _toggleFinished(),
+            ),
           ],
         ));
   }
