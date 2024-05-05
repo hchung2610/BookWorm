@@ -3,7 +3,6 @@ class Book {
   final String icon;
   final List<String> authors;
   final List<String> categories;
-  bool isAdded;
   int rating;
 
   Book(
@@ -11,7 +10,6 @@ class Book {
       required this.icon,
       required this.authors,
       required this.categories,
-      this.isAdded = false,
       this.rating = 1});
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -32,7 +30,6 @@ class Book {
       icon: json['imageLinks'] != null ? json['imageLinks']['thumbnail'] : '',
       authors: parseAuthors(json),
       categories: parseCategories(json),
-      isAdded: json['isAdded'] ?? false,
       rating: json['rating'] ?? defaultRating,
     );
   }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:practice_proj/util/book.dart';
+import 'package:practice_proj/util/library_model.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:practice_proj/dictionary-related/words_tab.dart';
 
@@ -7,12 +10,16 @@ class DetailedView extends StatefulWidget {
   final List<String> author;
   final List<String> genre;
   final String icon;
-  const DetailedView(
+  bool isFinished;
+  Book book;
+  DetailedView(
       {super.key,
       required this.title,
       required this.author,
       required this.genre,
-      required this.icon});
+      required this.icon,
+      required this.book,
+      required this.isFinished});
 
   @override
   State<DetailedView> createState() => _DetailedViewState();
@@ -21,8 +28,6 @@ class DetailedView extends StatefulWidget {
 class _DetailedViewState extends State<DetailedView> {
   SharedPreferences? _prefs;
   List<Map<String, String>> notes = [];
-
-  bool isFinished = false;
 
   @override
   void initState() {
@@ -35,7 +40,7 @@ class _DetailedViewState extends State<DetailedView> {
     _prefs = await SharedPreferences.getInstance();
     // Load the finished status using a unique key, here it is based on the book's title
     setState(() {
-      isFinished = _prefs?.getBool('finished_${widget.title}') ?? false;
+      widget.isFinished = _prefs?.getBool('finished_${widget.title}') ?? false;
     });
   }
 
@@ -136,21 +141,20 @@ class _DetailedViewState extends State<DetailedView> {
 
   void _toggleFinished() {
     setState(() {
-      isFinished = !isFinished;
+      widget.isFinished = !widget.isFinished;
       // Save the updated status using the same unique key
-      _prefs?.setBool('finished_${widget.title}', isFinished);
+      _prefs?.setBool('finished_${widget.title}', widget.isFinished);
 
       // Update the list of finished books based on the new state
       List<String> finishedBooks = _prefs?.getStringList('finishedBooks') ?? [];
-      if (isFinished && !finishedBooks.contains(widget.title)) {
+      if (widget.isFinished && !finishedBooks.contains(widget.title)) {
         finishedBooks.add(widget.title);
-      } else if (!isFinished && finishedBooks.contains(widget.title)) {
+      } else if (!widget.isFinished && finishedBooks.contains(widget.title)) {
         finishedBooks.remove(widget.title);
       }
       _prefs?.setStringList('finishedBooks', finishedBooks);
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -177,58 +181,88 @@ class _DetailedViewState extends State<DetailedView> {
   }
 
   Widget BookTab() {
-    return Container(
-        padding: EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            Row(children: [
-              Text(
-                "Title: ",
-                style: TextStyle(fontSize: 22),
-              ),
-              Flexible(
-                child: Text(
-                  widget.title,
-                  style: TextStyle(fontSize: 22),
+    return Consumer<LibraryModel>(
+        builder: (contextLibrary, value, child) => Container(
+            padding: EdgeInsets.all(20),
+            child: ListView(
+              children: [
+                Row(children: [
+                  Text(
+                    "Title: ",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  ),
+                ]),
+                Divider(),
+                Row(children: [
+                  Text(
+                    "Author(s): ",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  Flexible(
+                    child: Text(
+                      widget.author.join(", "),
+                      style: TextStyle(fontSize: 22),
+                    ),
+                  )
+                ]),
+                Divider(),
+                Row(children: [
+                  Text(
+                    "Genre(s): ",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                  Flexible(
+                      child: Text(
+                    widget.genre.join(", "),
+                    style: TextStyle(fontSize: 22),
+                  )),
+                ]),
+                Divider(),
+                SwitchListTile(
+                  title: Text(
+                    "Mark as Finished:",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  value: widget.isFinished,
+                  onChanged: (_) => _toggleFinished(),
                 ),
-              ),
-            ]),
-            Divider(),
-            Row(children: [
-              Text(
-                "Author(s): ",
-                style: TextStyle(fontSize: 22),
-              ),
-              Flexible(
-                child: Text(
-                  widget.author.join(", "),
-                  style: TextStyle(fontSize: 22),
-                ),
-              )
-            ]),
-            Divider(),
-            Row(children: [
-              Text(
-                "Genre(s): ",
-                style: TextStyle(fontSize: 22),
-              ),
-              Flexible(
-                  child: Text(
-                widget.genre.join(", "),
-                style: TextStyle(fontSize: 22),
-              )),
-            ]),
-            Divider(),
-            SwitchListTile(
-              title: Text(
-                "Mark as Finished",
-                style: TextStyle(fontSize: 18),
-              ),
-              value: isFinished,
-              onChanged: (_) => _toggleFinished(),
-            ),
-          ],
-        ));
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        shadowColor: Colors.black,
+                        side: BorderSide(color: Colors.redAccent),
+                        textStyle: TextStyle(
+                          fontSize: 15,
+                        )),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        final library =
+                                            contextLibrary.read<LibraryModel>();
+                                        library.removeBook(widget.book);
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text("Yes")),
+                                  TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text("No")),
+                                ],
+                                title: Text("Confirm Deletion"),
+                              ));
+                    },
+                    child: Text("Delete Book"))
+              ],
+            )));
   }
 
   Widget notesTab() {
