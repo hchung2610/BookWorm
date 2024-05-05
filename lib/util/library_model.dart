@@ -48,10 +48,13 @@ class LibraryModel extends ChangeNotifier {
       filtered_books = books;
     } else {
       filtered_books = filtered_books
-          .where((element) =>
-              filter_genres.contains(element.categories[0].toString()))
+          .where((element) => filter_genres.contains(
+              element.categories.length > 0
+                  ? element.categories[0].toString()
+                  : "No Genre"))
           .toList();
     }
+    print(filter_genres);
     Navigator.of(context).pop();
     notifyListeners();
   }

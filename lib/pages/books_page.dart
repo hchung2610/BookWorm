@@ -44,7 +44,7 @@ class _BooksPageState extends State<BooksPage> {
                     .length, // Assumes 'books' is a global list of added books
                 itemBuilder: (context, index) {
                   Book curr_book = value.filtered_books[index];
-                  categories.forEach((genre) {
+                  curr_book.categories.forEach((genre) {
                     if (value.unique_books.add(genre.toString())) {
                       value.genres.add([genre, false]);
                     }
