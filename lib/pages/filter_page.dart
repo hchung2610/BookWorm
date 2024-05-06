@@ -87,7 +87,7 @@ class _GenreFilterState extends State<GenreFilter> {
                       checked: value.genres[index][1],
                       onChanged: (val) {
                         final library = contextLibrary.read<LibraryModel>();
-                        library.checkBoxChanged(index, val);
+                        //library.checkBoxChanged(index, val);
                       });
                 },
               ));

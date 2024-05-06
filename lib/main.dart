@@ -10,10 +10,15 @@ import 'pages/profile_page.dart';
 import 'pages/explore_page.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => LibraryModel(),
-    child: const MyApp(),
-  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => LibraryModel()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -21,8 +26,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+      ),
+      themeMode: themeProvider.themeMode,
       home: ExplorePage(),
       routes: {
         '/explore': (context) => ExplorePage(),
@@ -34,3 +49,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+

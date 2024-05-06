@@ -116,9 +116,12 @@ class _ProfilePageState extends State {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'Dark Mode',
-                  style: TextStyle(fontSize: 20),
+                title: Text('Dark Mode'),
+                trailing: Switch(
+                  value: Provider.of<ThemeProvider>(context).themeMode == ThemeMode.dark,
+                  onChanged: (value) {
+                    Provider.of<ThemeProvider>(context, listen: false).toggleTheme(value);
+                  },
                 ),
                 leading: const Icon(
                   Icons.settings,
@@ -136,3 +139,15 @@ class _ProfilePageState extends State {
     );
   }
 }
+
+class ThemeProvider extends ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.system;  // Start with system default
+
+  ThemeMode get themeMode => _themeMode;
+
+  void toggleTheme(bool isDarkMode) {
+    _themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+}
+

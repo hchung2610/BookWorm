@@ -182,87 +182,96 @@ class _DetailedViewState extends State<DetailedView> {
 
   Widget BookTab() {
     return Consumer<LibraryModel>(
-        builder: (contextLibrary, value, child) => Container(
-            padding: EdgeInsets.all(20),
-            child: ListView(
-              children: [
-                Row(children: [
-                  Text(
-                    "Title: ",
-                    style: TextStyle(fontSize: 22),
-                  ),
-                  Flexible(
-                    child: Text(
-                      widget.title,
-                      style: TextStyle(fontSize: 22),
-                    ),
-                  ),
-                ]),
-                Divider(),
-                Row(children: [
-                  Text(
-                    "Author(s): ",
-                    style: TextStyle(fontSize: 22),
-                  ),
-                  Flexible(
-                    child: Text(
-                      widget.author.join(", "),
-                      style: TextStyle(fontSize: 22),
-                    ),
-                  )
-                ]),
-                Divider(),
-                Row(children: [
-                  Text(
-                    "Genre(s): ",
-                    style: TextStyle(fontSize: 22),
-                  ),
-                  Flexible(
-                      child: Text(
-                    widget.genre.join(", "),
-                    style: TextStyle(fontSize: 22),
-                  )),
-                ]),
-                Divider(),
-                SwitchListTile(
-                  title: Text(
-                    "Mark as Finished:",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  value: widget.isFinished,
-                  onChanged: (_) => _toggleFinished(),
+      builder: (contextLibrary, value, child) => Container(
+          padding: EdgeInsets.all(20),
+          child: ListView(
+            children: [
+              Row(children: [
+                Text(
+                  "Title: ",
+                  style: TextStyle(fontSize: 22),
                 ),
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        shadowColor: Colors.black,
-                        side: BorderSide(color: Colors.redAccent),
-                        textStyle: TextStyle(
-                          fontSize: 15,
-                        )),
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        final library =
-                                            contextLibrary.read<LibraryModel>();
-                                        library.removeBook(widget.book);
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Text("Yes")),
-                                  TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text("No")),
-                                ],
-                                title: Text("Confirm Deletion"),
-                              ));
-                    },
-                    child: Text("Delete Book"))
-              ],
-            )));
+                Flexible(
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(fontSize: 22),
+                  ),
+                ),
+              ]),
+              Divider(),
+              Row(children: [
+                Text(
+                  "Author(s): ",
+                  style: TextStyle(fontSize: 22),
+                ),
+                Flexible(
+                  child: Text(
+                    widget.author.join(", "),
+                    style: TextStyle(fontSize: 22),
+                  ),
+                )
+              ]),
+              Divider(),
+              Row(children: [
+                Text(
+                  "Genre(s): ",
+                  style: TextStyle(fontSize: 22),
+                ),
+                Flexible(
+                    child: Text(
+                      widget.genre.join(", "),
+                      style: TextStyle(fontSize: 22),
+                    )),
+              ]),
+              Divider(),
+              SwitchListTile(
+                title: Text(
+                  "Mark as Finished:",
+                  style: TextStyle(fontSize: 18),
+                ),
+                value: widget.isFinished,
+                onChanged: (_) => _toggleFinished(),
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shadowColor: Colors.black,
+                    side: BorderSide(color: Colors.redAccent),
+                    textStyle: TextStyle(fontSize: 15),
+                  ),
+                  onPressed: () => _confirmDeletion(contextLibrary),
+                  child: Text("Delete Book")
+              ),
+            ],
+          )
+      ),
+    );
+  }
+
+  void _confirmDeletion(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text("Confirm Deletion"),
+          content: Text("Are you sure you want to delete this book?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                final library = Provider.of<LibraryModel>(context, listen: false);
+                library.removeBook(widget.book);
+                Navigator.of(dialogContext).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Optionally, close the detailed view
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget notesTab() {
