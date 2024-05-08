@@ -1,9 +1,30 @@
 //this is the drawer class, its been imported into all the pages
-
 import 'package:flutter/material.dart';
-class CustomDrawer extends StatelessWidget {
+import 'package:shared_preferences/shared_preferences.dart';
+
+class CustomDrawer extends StatefulWidget {
   const CustomDrawer({Key? key}) : super(key: key);
 
+  @override
+  _CustomDrawerState createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  String userName = "User"; // Default name
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedName = prefs.getString('userName');
+    setState(() {
+      userName = savedName ?? "User"; // Use "User" if no name is found
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -14,7 +35,7 @@ class CustomDrawer extends StatelessWidget {
             child: Column(
               children: [
                 Icon(Icons.menu_book, size: 100),
-                Text("Welcome John Smith!"),
+                Text("Welcome $userName!"),
               ],
             ),
           ),
@@ -33,8 +54,8 @@ class CustomDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text("S E T T I N G S"),
+            leading: Icon(Icons.timer),
+            title: Text("T I M E R"),
             onTap: () {
               Navigator.pushNamed(context, '/settings');
             },

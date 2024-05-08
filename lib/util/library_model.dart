@@ -33,7 +33,6 @@ class LibraryModel extends ChangeNotifier {
       SnackBar(content: const Text('Error: Cannot Add Existing Book'));
       ScaffoldMessenger.of(context).showSnackBar(snackbar);
     }
-
     notifyListeners();
   }
 

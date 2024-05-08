@@ -7,6 +7,9 @@ import 'drawer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'ReadingGoalsPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 File? _image;
 
@@ -17,7 +20,59 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State {
+class _ProfilePageState extends State<ProfilePage>{
+  final TextEditingController _nameController = TextEditingController();
+  bool _isLoggedIn = false;
+
+  Future<void> _loginWithFacebook() async {
+    final LoginResult result = await FacebookAuth.instance.login();
+
+    if (result.status == LoginStatus.success) {
+      setState(() {
+        _isLoggedIn = true;
+      });
+      _redirectToFacebookGroup();
+    } else {
+      // Handle error or cancellation
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook login failed: ${result.message}'))
+      );
+    }
+  }
+
+  void _redirectToFacebookGroup() async{
+    const url = 'https://www.facebook.com/groups/7048925028497413';
+    if (await canLaunchUrl(Uri.parse(url))) {
+    await launchUrl(Uri.parse(url));
+    } else {
+    throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadName();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+  Future<void> _loadName() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? savedName = prefs.getString('userName');
+    if (savedName != null) {
+      _nameController.text = savedName;
+    }
+  }
+
+  Future<void> _saveName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', name);
+  }
+
   // Function to handle image picking
   Future<void> _pickImage() async {
     try {
@@ -65,13 +120,24 @@ class _ProfilePageState extends State {
                 child: const Text('Change Profile Picture'),
               ),
               const SizedBox(height: 10),
-              const Text(
-                "John Smith",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Your Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  onSubmitted: (value) {
+                    _saveName(value);
+                  },
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
+              const SizedBox(height: 20),
               Text(
                 'You have ' +
                     value.filtered_books.length.toString() +
@@ -102,18 +168,9 @@ class _ProfilePageState extends State {
                 },
               ),
               ListTile(
-                title: const Text(
-                  'Current Books',
-                  style: TextStyle(fontSize: 20),
-                ),
-                leading: const Icon(
-                  Icons.book,
-                  color: Colors.blue,
-                  size: 30,
-                ),
-                onTap: () {
-                  // Navigate to borrowed books page
-                },
+                title: Text('Connect with Community', style: TextStyle(fontSize: 20)),
+                leading: Icon(Icons.groups, color: Colors.blue, size: 30),
+                onTap: _isLoggedIn ? _redirectToFacebookGroup : _loginWithFacebook,
               ),
               ListTile(
                 title: Text('Dark Mode'),
