@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:practice_proj/util/book.dart';
+import 'package:practice_proj/util/library_book_card.dart';
 import 'package:practice_proj/util/library_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,14 +14,17 @@ class DetailedView extends StatefulWidget {
   final String icon;
   bool isFinished;
   Book book;
-  DetailedView(
-      {super.key,
-      required this.title,
-      required this.author,
-      required this.genre,
-      required this.icon,
-      required this.book,
-      required this.isFinished});
+  VoidCallback toggleColor;
+  DetailedView({
+    super.key,
+    required this.title,
+    required this.author,
+    required this.genre,
+    required this.icon,
+    required this.book,
+    required this.isFinished,
+    required this.toggleColor,
+  });
 
   @override
   State<DetailedView> createState() => _DetailedViewState();
@@ -122,16 +127,16 @@ class _DetailedViewState extends State<DetailedView> {
           content: Text('Are you sure you want to delete this note?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('No'),
-            ),
-            TextButton(
               onPressed: () {
                 _prefs?.remove(key); // Perform the deletion
                 _loadNotes(); // Refresh the notes list
                 Navigator.of(context).pop();
               },
               child: Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('No'),
             ),
           ],
         );
@@ -142,6 +147,7 @@ class _DetailedViewState extends State<DetailedView> {
   void _toggleFinished() {
     setState(() {
       widget.isFinished = !widget.isFinished;
+
       // Save the updated status using the same unique key
       _prefs?.setBool('finished_${widget.title}', widget.isFinished);
 
@@ -158,16 +164,22 @@ class _DetailedViewState extends State<DetailedView> {
 
   @override
   Widget build(BuildContext context) {
+    Color activeTabColor = Theme.of(context).colorScheme.primary;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
           title: Text("Book Details"),
-          bottom: const TabBar(tabs: [
-            Tab(icon: Icon(Icons.book)),
-            Tab(icon: Icon(Icons.sticky_note_2)),
-            Tab(icon: Icon(Icons.spellcheck)),
-          ]),
+          bottom: const TabBar(
+            tabs: [
+              Tab(
+                icon: Icon(Icons.book),
+              ),
+              Tab(icon: Icon(Icons.sticky_note_2)),
+              Tab(icon: Icon(Icons.spellcheck)),
+            ],
+          ),
         ),
         body: TabBarView(
           children: [
@@ -183,66 +195,103 @@ class _DetailedViewState extends State<DetailedView> {
   Widget BookTab() {
     return Consumer<LibraryModel>(
       builder: (contextLibrary, value, child) => Container(
-          padding: EdgeInsets.all(20),
-          child: ListView(
-            children: [
-              Row(children: [
-                Text(
-                  "Title: ",
-                  style: TextStyle(fontSize: 22),
-                ),
-                Flexible(
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(fontSize: 22),
-                  ),
-                ),
-              ]),
-              Divider(),
-              Row(children: [
-                Text(
-                  "Author(s): ",
-                  style: TextStyle(fontSize: 22),
-                ),
-                Flexible(
-                  child: Text(
-                    widget.author.join(", "),
-                    style: TextStyle(fontSize: 22),
-                  ),
-                )
-              ]),
-              Divider(),
-              Row(children: [
-                Text(
-                  "Genre(s): ",
-                  style: TextStyle(fontSize: 22),
-                ),
-                Flexible(
-                    child: Text(
-                      widget.genre.join(", "),
-                      style: TextStyle(fontSize: 22),
-                    )),
-              ]),
-              Divider(),
-              SwitchListTile(
-                title: Text(
-                  "Mark as Finished:",
-                  style: TextStyle(fontSize: 18),
-                ),
-                value: widget.isFinished,
-                onChanged: (_) => _toggleFinished(),
+        padding: EdgeInsets.all(20),
+        child: ListView(
+          children: [
+            Row(children: [
+              Text(
+                "Title: ",
+                style: TextStyle(fontSize: 22),
               ),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
+              Flexible(
+                child: Text(
+                  widget.title,
+                  style: TextStyle(fontSize: 22),
+                ),
+              ),
+            ]),
+            Divider(),
+            Row(children: [
+              Text(
+                "Author(s): ",
+                style: TextStyle(fontSize: 22),
+              ),
+              Flexible(
+                child: Text(
+                  widget.author.join(", "),
+                  style: TextStyle(fontSize: 22),
+                ),
+              )
+            ]),
+            Divider(),
+            Row(children: [
+              Text(
+                "Genre(s): ",
+                style: TextStyle(fontSize: 22),
+              ),
+              Flexible(
+                  child: Text(
+                widget.genre.join(", "),
+                style: TextStyle(fontSize: 22),
+              )),
+            ]),
+            Divider(),
+            Row(
+              children: [
+                Text("Select Rating: ", style: TextStyle(fontSize: 22)),
+                Spacer(),
+                DropdownButton<int>(
+                  value: widget.book.rating == 0 ? 1 : widget.book.rating,
+                  items: List.generate(5, (index) {
+                    return DropdownMenuItem(
+                      value: index + 1,
+                      child: Text('${index + 1}'),
+                    );
+                  }),
+                  onChanged: (newValue) {
+                    final library = contextLibrary.read<LibraryModel>();
+                    library.setStars(widget.book.index, newValue as int);
+                  },
+                ),
+              ],
+            ),
+            Divider(),
+            SwitchListTile(
+              title: Text(
+                "Mark as Finished:",
+                style: TextStyle(fontSize: 18),
+              ),
+              value: widget.book.readStatus,
+              onChanged: (value) {
+                final library = contextLibrary.read<LibraryModel>();
+
+                _toggleFinished();
+                library.toggleFinished(widget.book.index);
+              },
+              inactiveTrackColor: Theme.of(context).colorScheme.scrim,
+              inactiveThumbColor: Theme.of(context).colorScheme.tertiary,
+              activeTrackColor: Theme.of(context).colorScheme.primary,
+              activeColor: Theme.of(context).colorScheme.inversePrimary,
+            ),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.scrim,
                     shadowColor: Colors.black,
-                    side: BorderSide(color: Colors.redAccent),
-                    textStyle: TextStyle(fontSize: 15),
-                  ),
-                  onPressed: () => _confirmDeletion(contextLibrary),
-                  child: Text("Delete Book")
-              ),
-            ],
-          )
+                    side: BorderSide(
+                        color: Theme.of(context).colorScheme.tertiary),
+                    textStyle: TextStyle(
+                      fontSize: 15,
+                    )),
+                onPressed: () {
+                  _confirmDeletion(contextLibrary);
+                },
+                child: Text(
+                  "Delete Book",
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.tertiary),
+                ))
+          ],
+        ),
       ),
     );
   }
@@ -261,10 +310,12 @@ class _DetailedViewState extends State<DetailedView> {
             ),
             TextButton(
               onPressed: () {
-                final library = Provider.of<LibraryModel>(context, listen: false);
+                final library =
+                    Provider.of<LibraryModel>(context, listen: false);
                 library.removeBook(widget.book);
                 Navigator.of(dialogContext).pop(); // Close the dialog
-                Navigator.of(context).pop(); // Optionally, close the detailed view
+                Navigator.of(context)
+                    .pop(); // Optionally, close the detailed view
               },
               child: Text('Yes'),
             ),
@@ -341,7 +392,10 @@ class NoteEditor extends StatelessWidget {
     _bodyController.text = body ?? '';
 
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Note')),
+      appBar: AppBar(
+        title: Text('Edit Note'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+      ),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(

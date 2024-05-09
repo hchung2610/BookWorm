@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:practice_proj/pages/books_page.dart';
-import 'package:practice_proj/pages/detailed_view.dart';
 import 'package:practice_proj/pages/filter_page.dart';
-import 'package:practice_proj/pages/detailed_view.dart';
+import 'package:practice_proj/theme/theme.dart';
+import 'package:practice_proj/theme/theme_provider.dart';
 import 'package:practice_proj/util/library_model.dart';
 import 'package:provider/provider.dart';
 import 'pages/settings_page.dart';
@@ -26,18 +26,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.blue,
-        brightness: Brightness.dark,
-      ),
-      themeMode: themeProvider.themeMode,
+      theme: Provider.of<ThemeProvider>(context).themeData,
       home: ExplorePage(),
       routes: {
         '/explore': (context) => ExplorePage(),
@@ -49,6 +40,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-

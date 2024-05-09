@@ -18,7 +18,7 @@ class _FilterPageState extends State<FilterPage> {
       builder: (contextLibrary, value, child) => Scaffold(
         appBar: AppBar(
           title: Text("Filters"),
-          backgroundColor: Colors.amber,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
         ),
         body: Padding(
           padding: EdgeInsets.all(20),
@@ -35,26 +35,46 @@ class _FilterPageState extends State<FilterPage> {
                 GenreFilter()
               ])),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Button(
-                    text: "Apply",
-                    onPressed: () {
-                      final library = contextLibrary.read<LibraryModel>();
-                      library.applyFilter(context);
-                    },
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Button(
-                      text: "Cancel",
+              Padding(
+                padding: const EdgeInsets.only(right: 5.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        final library = contextLibrary.read<LibraryModel>();
+                        library.applyFilter(context);
+                      },
+                      child: Text("Apply",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onError)),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3))),
+                    ),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    ElevatedButton(
                       onPressed: () {
                         final library = contextLibrary.read<LibraryModel>();
                         library.clearFilter(context);
-                      })
-                ],
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onError),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3))),
+                    ),
+                  ],
+                ),
               )
             ],
           ),
@@ -87,7 +107,7 @@ class _GenreFilterState extends State<GenreFilter> {
                       checked: value.genres[index][1],
                       onChanged: (val) {
                         final library = contextLibrary.read<LibraryModel>();
-                        //library.checkBoxChanged(index, val);
+                        library.checkBoxChanged(index, val);
                       });
                 },
               ));

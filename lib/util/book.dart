@@ -3,14 +3,18 @@ class Book {
   final String icon;
   final List<String> authors;
   final List<String> categories;
+  int index;
   int rating;
+  bool readStatus;
 
   Book(
       {required this.name,
       required this.icon,
       required this.authors,
       required this.categories,
-      this.rating = 1});
+      required this.rating,
+      required this.readStatus,
+      required this.index});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     List<String> parseAuthors(json) {
@@ -23,14 +27,14 @@ class Book {
           : [];
     }
 
-    int defaultRating = 1;
-
     return Book(
       name: json['title'] ?? 'Untitled',
       icon: json['imageLinks'] != null ? json['imageLinks']['thumbnail'] : '',
       authors: parseAuthors(json),
       categories: parseCategories(json),
-      rating: json['rating'] ?? defaultRating,
+      rating: 0,
+      readStatus: false,
+      index: 0,
     );
   }
 }

@@ -24,7 +24,7 @@ class _BooksPageState extends State<BooksPage> {
       builder: (contextLibrary, value, child) => Scaffold(
         appBar: AppBar(
           title: Text("My Books"),
-          backgroundColor: Colors.amber,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
           actions: [
             IconButton(
               icon: Icon(Icons.filter_list),
@@ -44,17 +44,27 @@ class _BooksPageState extends State<BooksPage> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: globalAddedCategories.map((genre) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4.0),
-                      child: ActionChip(
-                        label: Text(genre),
-                        onPressed: () {
-                          // Implement your action for filtering books based on the genre
-                        },
-                      ),
-                    );
-                  }).toList(),
+                  children: value.filter_genres.length > 0
+                      ? value.filter_genres.map((genre) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.0),
+                            child: ActionChip(
+                              label: Text(genre),
+                              onPressed: () {},
+                            ),
+                          );
+                        }).toList()
+                      : globalAddedCategories.map((genre) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.0),
+                            child: ActionChip(
+                              label: Text(genre),
+                              onPressed: () {
+                                // Implement your action for filtering books based on the genre
+                              },
+                            ),
+                          );
+                        }).toList(),
                 ),
               ),
             ),
@@ -66,32 +76,29 @@ class _BooksPageState extends State<BooksPage> {
                   mainAxisSpacing: 10,
                   childAspectRatio: 0.7,
                 ),
-                itemCount: value.filtered_books.length, // Assumes 'filtered_books' is a list of filtered books in LibraryModel
+                itemCount: value.filtered_books
+                    .length, // Assumes 'filtered_books' is a list of filtered books in LibraryModel
                 itemBuilder: (context, index) {
+                  value.filtered_books[index].index = index;
                   Book curr_book = value.filtered_books[index];
 
                   return LibraryBookCard(
-                    book: curr_book,
+                    book: value.filtered_books[index],
                     finished: false,
                     showDetails: () {
-                      // Opening the detailed view on tap
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailedView(
-                            book: curr_book,
-                            title: curr_book.name,
-                            author: curr_book.authors,
-                            genre: curr_book.categories,
-                            icon: curr_book.icon,
-                            isFinished: false,
-                          ),
-                        ),
-                      );
-                    },
-                    onRemove: () {
-                      final library = contextLibrary.read<LibraryModel>();
-                      library.removeBook(value.filtered_books[index]);
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailedView(
+                              book: curr_book,
+                              title: curr_book.name,
+                              author: curr_book.authors,
+                              genre: curr_book.categories,
+                              icon: curr_book.icon,
+                              toggleColor: () {},
+                              isFinished: false,
+                            ),
+                          ));
                     },
                   );
                 },
@@ -102,8 +109,6 @@ class _BooksPageState extends State<BooksPage> {
       ),
     );
   }
-
-
 
   @override
   void setState(fn) {

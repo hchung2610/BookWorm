@@ -1,6 +1,9 @@
 //this is the drawer class, its been imported into all the pages
 import 'package:flutter/material.dart';
+import 'package:practice_proj/theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomDrawer extends StatefulWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -25,16 +28,23 @@ class _CustomDrawerState extends State<CustomDrawer> {
       userName = savedName ?? "User"; // Use "User" if no name is found
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.amber,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       child: Column(
         children: [
           DrawerHeader(
             child: Column(
               children: [
-                Icon(Icons.menu_book, size: 100),
+                Text(
+                  "B o o k W o r m",
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                Icon(Icons.menu_book, size: 80),
                 Text("Welcome $userName!"),
               ],
             ),
@@ -66,6 +76,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
             onTap: () {
               Navigator.pushNamed(context, '/profile');
             },
+          ),
+          SwitchListTile(
+            title: Text(
+              "Dark Mode",
+            ),
+            value: Provider.of<ThemeProvider>(context).isDark,
+            onChanged: (value) {
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+            },
+            activeColor: Theme.of(context).colorScheme.tertiary,
+            inactiveTrackColor: Theme.of(context).colorScheme.scrim,
+            inactiveThumbColor: Theme.of(context).colorScheme.tertiary,
           ),
         ],
       ),

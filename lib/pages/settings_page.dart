@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:async';  // Import async library for Timer
-import 'drawer.dart';  // Assuming this is correctly implemented
+import 'dart:async'; // Import async library for Timer
+import 'drawer.dart'; // Assuming this is correctly implemented
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -53,7 +53,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Timer"),
-        backgroundColor: Colors.amber,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         elevation: 0,
       ),
       drawer: const CustomDrawer(),
@@ -74,27 +74,41 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 ElevatedButton(
                   onPressed: _startTimer,
-                  child: Text('Start'),
+                  child: Text(
+                    'Start',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.scrim,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: _stopTimer,
-                  child: Text('Stop'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                ),
+                    onPressed: _stopTimer,
+                    child: Text(
+                      'Stop',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.scrim,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                    )),
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _resetTimer,
-                  child: Text('Reset'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                  child: Text(
+                    'Reset',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.scrim,
+                    ),
                   ),
-                ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.tertiary,
+                  ),
+                )
               ],
             ),
           ],

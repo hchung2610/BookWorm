@@ -18,12 +18,17 @@ class GenreTile extends StatelessWidget {
         padding: EdgeInsets.all(10),
         child: Row(
           children: [
-            Checkbox(value: checked, onChanged: onChanged),
+            Checkbox(
+              value: checked,
+              onChanged: onChanged,
+              activeColor: Theme.of(context).colorScheme.tertiary,
+            ),
             Text(name)
           ],
         ),
         decoration: BoxDecoration(
-            color: Colors.lightBlue, borderRadius: BorderRadius.circular(10)),
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(10)),
       ),
     );
   }

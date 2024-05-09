@@ -10,6 +10,7 @@ import 'drawer.dart';
 import '../util/explore_book_card.dart';
 
 List<String> globalAddedCategories = [];
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({Key? key}) : super(key: key);
 
@@ -20,7 +21,7 @@ class ExplorePage extends StatefulWidget {
 class _ExplorePageState extends State<ExplorePage> {
   late Future<List<Book>> futureBooks;
   final TextEditingController searchController = TextEditingController();
-  List<String> addedCategories =[];
+  List<String> addedCategories = [];
   @override
   void initState() {
     super.initState();
@@ -57,10 +58,10 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   Widget build(BuildContext context) {
     return Consumer<LibraryModel>(
-      builder: (context, value, child) => Scaffold(
+      builder: (contextLibrary, value, child) => Scaffold(
         appBar: AppBar(
           title: Text("Explore"),
-          backgroundColor: Colors.amber,
+          backgroundColor: Theme.of(context).colorScheme.secondary,
           elevation: 0,
         ),
         drawer: const CustomDrawer(),
@@ -102,36 +103,30 @@ class _ExplorePageState extends State<ExplorePage> {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         Book book = snapshot.data![index];
-                        print("Empty?: ${book.categories.isNotEmpty}");
+
                         return ExploreBookCard(
                           book: book,
                           addBook: () {
                             // getting access to the library model class
 
                             final library = contextLibrary.read<LibraryModel>();
-                            print("Total Genre: $addedCategories");
 
                             if (book.categories.isNotEmpty) {
-
                               // Check if the categories are not already added
-                              if (!addedCategories.contains(book.categories[0].toString())) {
-                              // Add categories to the global list
-                                addedCategories.add(book.categories[0].toString());
-                                print("Added book categories: ${book.categories}");
-                                print("Empty?: ${book.categories.isNotEmpty}");
-                                print("Total Genre: $addedCategories");
-                                if (!globalAddedCategories.contains(addedCategories.last)) {
-                                  globalAddedCategories.add(addedCategories.last);
-                                  print("globalAddedCategories: $globalAddedCategories");
+                              if (!addedCategories
+                                  .contains(book.categories[0].toString())) {
+                                // Add categories to the global list
+                                addedCategories
+                                    .add(book.categories[0].toString());
+
+                                if (!globalAddedCategories
+                                    .contains(addedCategories.last)) {
+                                  globalAddedCategories
+                                      .add(addedCategories.last);
                                 }
                               }
                             }
                             library.addBook(book, context);
-                          },
-                          onRemove: () {
-                            // getting access to the library model class
-                            final library = contextLibrary.read<LibraryModel>();
-                            library.removeBook(value.books[index]);
                           },
                         );
                       },
