@@ -24,7 +24,7 @@ ThemeData darkMode = ThemeData(
         tertiary: Color(0xffdad7cd),
         scrim: Color.fromARGB(255, 48, 68, 58),
         inversePrimary: Color(0xffa3b18a),
-        shadow: Color.fromARGB(0, 99, 108, 79).withOpacity(0.5),
+        shadow: Color.fromARGB(255, 32, 47, 40).withOpacity(0.5),
         onError: Colors.white,
         onSecondary: Color(0xffa3b18a),
         surface: Color(0xffa3b18a)));

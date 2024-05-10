@@ -43,27 +43,10 @@ class _FilterPageState extends State<FilterPage> {
                     ElevatedButton(
                       onPressed: () {
                         final library = contextLibrary.read<LibraryModel>();
-                        library.applyFilter(context);
-                      },
-                      child: Text("Apply",
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.onError)),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(3))),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final library = contextLibrary.read<LibraryModel>();
                         library.clearFilter(context);
                       },
                       child: Text(
-                        "Cancel",
+                        "Clear Filters",
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onError),
                       ),
@@ -104,10 +87,11 @@ class _GenreFilterState extends State<GenreFilter> {
                 itemBuilder: (context, index) {
                   return GenreTile(
                       name: value.genres[index][0],
-                      checked: value.genres[index][1],
+                      checked:
+                          value.filter_genres.contains(value.genres[index][0]),
                       onChanged: (val) {
                         final library = contextLibrary.read<LibraryModel>();
-                        library.checkBoxChanged(index, val);
+                        library.selectActionChip(value.genres[index][0]);
                       });
                 },
               ));

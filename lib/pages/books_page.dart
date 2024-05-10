@@ -44,27 +44,22 @@ class _BooksPageState extends State<BooksPage> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: value.filter_genres.length > 0
-                      ? value.filter_genres.map((genre) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4.0),
-                            child: ActionChip(
-                              label: Text(genre),
-                              onPressed: () {},
-                            ),
-                          );
-                        }).toList()
-                      : globalAddedCategories.map((genre) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4.0),
-                            child: ActionChip(
-                              label: Text(genre),
-                              onPressed: () {
-                                // Implement your action for filtering books based on the genre
-                              },
-                            ),
-                          );
-                        }).toList(),
+                  children: globalAddedCategories.map((genre) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      child: ActionChip(
+                        label: Text(genre),
+                        color: MaterialStateColor.resolveWith((states) =>
+                            value.filter_genres.contains(genre)
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.background),
+                        onPressed: () {
+                          final library = contextLibrary.read<LibraryModel>();
+                          library.selectActionChip(genre);
+                        },
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),

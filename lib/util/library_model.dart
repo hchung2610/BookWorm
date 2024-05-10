@@ -102,7 +102,24 @@ class LibraryModel extends ChangeNotifier {
           .toList();
     }
 
-    Navigator.of(context).pop();
+    // Navigator.of(context).pop();
+    notifyListeners();
+  }
+
+  void selectActionChip(String genre) {
+    filter_genres.contains(genre)
+        ? filter_genres.remove(genre)
+        : filter_genres.add(genre);
+
+    if (filter_genres.isEmpty) {
+      filtered_books = List<Book>.from(books);
+    } else {
+      filtered_books = books
+          .where((book) =>
+              book.categories.any((genre) => filter_genres.contains(genre)))
+          .toList();
+    }
+
     notifyListeners();
   }
 
