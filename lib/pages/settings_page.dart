@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:async'; // Import async library for Timer
-import 'drawer.dart'; // Assuming this is correctly implemented
+import 'dart:async';
+import 'drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -12,40 +13,72 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   Timer? _timer;
   Duration _duration = Duration();
+  bool _isRunning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTimerState();
+  }
+
+  Future<void> _loadTimerState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startTimeMillis = prefs.getInt('startTimeMillis');
+    final isRunning = prefs.getBool('isRunning') ?? false;
+    final savedDuration = prefs.getInt('savedDuration') ?? 0;
+
+    setState(() {
+      _isRunning = isRunning;
+      if (startTimeMillis != null && isRunning) {
+        DateTime startTime = DateTime.fromMillisecondsSinceEpoch(startTimeMillis);
+        _duration = DateTime.now().difference(startTime);
+        _startTimer();
+      } else {
+        _duration = Duration(seconds: savedDuration);
+      }
+    });
+  }
+
+  void _updateTimer() {
+    if (_isRunning) {
+      setState(() {
+        _duration += Duration(seconds: 1);
+      });
+    }
+  }
 
   void _startTimer() {
-    // Prevent multiple timers running simultaneously
-    if (_timer != null) {
-      _timer!.cancel();
-    }
-    // Start counting up
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _duration = _duration + Duration(seconds: 1);
-      });
+    final startTime = DateTime.now().subtract(_duration);
+    _saveTimerState(startTime, true, _duration.inSeconds);
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer t) => _updateTimer());
+    setState(() {
+      _isRunning = true;
     });
   }
 
   void _stopTimer() {
-    if (_timer != null) {
-      _timer!.cancel();
-      setState(() {
-        _timer = null;
-      });
-    }
-  }
-
-  void _resetTimer() {
-    _stopTimer();
+    _timer?.cancel();
+    _saveTimerState(DateTime.now().subtract(_duration), false, _duration.inSeconds);
     setState(() {
-      _duration = Duration();
+      _isRunning = false;
     });
   }
 
-  @override
-  void dispose() {
+  void _resetTimer() {
     _timer?.cancel();
-    super.dispose();
+    _saveTimerState(DateTime.now(), false, 0);
+    setState(() {
+      _duration = Duration();
+      _isRunning = false;
+    });
+  }
+
+  Future<void> _saveTimerState(DateTime startTime, bool isRunning, int savedDuration) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('startTimeMillis', startTime.millisecondsSinceEpoch);
+    await prefs.setBool('isRunning', isRunning);
+    await prefs.setInt('savedDuration', savedDuration);
   }
 
   @override
@@ -62,7 +95,7 @@ class _SettingsPageState extends State<SettingsPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Reading Time: ${_duration.inHours.toString().padLeft(2, '0')}:${(_duration.inMinutes % 60).toString().padLeft(2, '0')}:${(_duration.inSeconds % 60).toString().padLeft(2, '0')}',
+              'Elapsed Time: ${_duration.inHours.toString().padLeft(2, '0')}:${(_duration.inMinutes % 60).toString().padLeft(2, '0')}:${(_duration.inSeconds % 60).toString().padLeft(2, '0')}',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -73,7 +106,7 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: _startTimer,
+                  onPressed: _isRunning ? null : _startTimer,
                   child: Text(
                     'Start',
                     style: TextStyle(
@@ -86,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
-                    onPressed: _stopTimer,
+                    onPressed: _isRunning ? _stopTimer : null,
                     child: Text(
                       'Stop',
                       style: TextStyle(
