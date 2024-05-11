@@ -10,8 +10,8 @@ class ReadingGoalsPage extends StatefulWidget {
 }
 
 class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
-  int goal = 10;  // Default yearly goal
-  int booksRead = 0;  // Initialize booksRead
+  int goal = 10; // Default yearly goal
+  int booksRead = 0; // Initialize booksRead
 
   @override
   void initState() {
@@ -24,7 +24,8 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
     List<String> finishedBooks = prefs.getStringList('finishedBooks') ?? [];
     int savedGoal = prefs.getInt('readingGoal') ?? 10;
     setState(() {
-      booksRead = finishedBooks.length;  // Set booksRead based on finishedBooks list
+      booksRead =
+          finishedBooks.length; // Set booksRead based on finishedBooks list
       goal = savedGoal;
     });
   }
@@ -35,19 +36,17 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setInt('readingGoal', newGoal);
       setState(() {
-        goal = newGoal;  // Update the goal and save to prefs
+        goal = newGoal; // Update the goal and save to prefs
       });
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reading Goals'),
-        backgroundColor: Colors.amber,
+        backgroundColor: Theme.of(context).colorScheme.secondary,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,8 +72,8 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
             const SizedBox(height: 10),
             LinearProgressIndicator(
               value: booksRead / goal,
-              backgroundColor: Colors.grey[200],
-              color: Colors.blue,
+              backgroundColor: Theme.of(context).colorScheme.scrim,
+              color: Theme.of(context).colorScheme.tertiary,
               minHeight: 20,
             ),
             // Padding(
@@ -86,40 +85,53 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
             // ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20),
-              child: booksRead < goal ? RichText(
-                textAlign: TextAlign.center,  // Aligns text to the center
-                text: TextSpan(
-                  style: TextStyle(fontSize: 16, color: Colors.black),  // Default text style
-                  children: [
-                    TextSpan(
-                      text: 'Fantastic!\n You\'ve read $booksRead (book/books) out of $goal this year.\n ${goal - booksRead} books left to reach your goal!\n'
-
+              child: booksRead < goal
+                  ? RichText(
+                      textAlign: TextAlign.center, // Aligns text to the center
+                      text: TextSpan(
+                        style: TextStyle(
+                          fontSize: 16,
+                        ), // Default text style
+                        children: [
+                          TextSpan(
+                              text:
+                                  'Fantastic!\n You\'ve read $booksRead (book/books) out of $goal this year.\n ${goal - booksRead} books left to reach your goal!\n',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.tertiary)),
+                          TextSpan(
+                            text:
+                                '\nKeep up the great work!', // New line before this part
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.tertiary),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Text(
+                          'Congratulations! 🎉',
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green),
+                        ),
+                        SizedBox(
+                            height:
+                                10), // Adds a small space between the two texts
+                        Text(
+                          'You’ve achieved your goal of reading $goal books this year. Amazing effort!',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
-
-                    TextSpan(
-                      text: '\nKeep up the great work!',  // New line before this part
-                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-                    ),
-                  ],
-                ),
-              ): Column(
-                children: [
-
-                  Text(
-                    'Congratulations! 🎉',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                  SizedBox(height: 10), // Adds a small space between the two texts
-                  Text(
-                    'You’ve achieved your goal of reading $goal books this year. Amazing effort!',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
             )
-
-    ],
+          ],
         ),
       ),
     );
