@@ -185,7 +185,7 @@ class _DetailedViewState extends State<DetailedView> {
           children: [
             BookTab(),
             notesTab(),
-            WordsTab(),
+            WordsTab(bookTitle: widget.title),
           ],
         ),
       ),

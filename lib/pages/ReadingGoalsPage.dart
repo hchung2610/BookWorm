@@ -32,6 +32,15 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
 
   void _updateGoal(String value) async {
     int newGoal = int.tryParse(value) ?? goal;
+    if (newGoal <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a positive number.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
     if (newGoal != goal) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setInt('readingGoal', newGoal);
@@ -60,6 +69,9 @@ class _ReadingGoalsPageState extends State<ReadingGoalsPage> {
             TextField(
               decoration: InputDecoration(
                 hintText: 'Enter number of books as your goal',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               keyboardType: TextInputType.number,
               onChanged: _updateGoal,

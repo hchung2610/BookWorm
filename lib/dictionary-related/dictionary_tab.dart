@@ -5,7 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class DictionaryTab extends StatefulWidget {
   final String? initialWord;
-  DictionaryTab({Key? key, this.initialWord}) : super(key: key);
+  final String bookTitle;
+  DictionaryTab({Key? key, this.initialWord,  required this.bookTitle}) : super(key: key);
 
   @override
   _DictionaryTabState createState() => _DictionaryTabState();
@@ -49,11 +50,10 @@ class _DictionaryTabState extends State<DictionaryTab> {
   void _saveWord(String word) async {
     if (word.isNotEmpty) {
       final prefs = await SharedPreferences.getInstance();
-      print(prefs.getStringList('words'));
-      List<String> existingWords = prefs.getStringList('words') ?? [];
+      List<String> existingWords = prefs.getStringList('words_${widget.bookTitle}') ?? [];
       if (!existingWords.contains(word)) {
         existingWords.add(word);
-        await prefs.setStringList('words', existingWords);
+        await prefs.setStringList('words_${widget.bookTitle}', existingWords);
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Word saved!'))
         );

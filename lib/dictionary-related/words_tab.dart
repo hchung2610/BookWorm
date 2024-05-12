@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dictionary_tab.dart';
+
 class WordsTab extends StatefulWidget {
+  final String bookTitle;
+  WordsTab({Key? key, required this.bookTitle}) : super(key: key);
+
   @override
   _WordsTabState createState() => _WordsTabState();
 }
@@ -18,7 +22,7 @@ class _WordsTabState extends State<WordsTab> {
   void loadWords() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      words = prefs.getStringList('words') ?? [];
+      words = prefs.getStringList('words_${widget.bookTitle}') ?? [];
     });
   }
 
@@ -49,10 +53,9 @@ class _WordsTabState extends State<WordsTab> {
 
   void deleteWord(String word) async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      words.remove(word);
-      prefs.setStringList('words', words);
-    });
+    words.remove(word);
+    await prefs.setStringList('words_${widget.bookTitle}', words);
+    setState(() {});
   }
 
   @override
@@ -65,7 +68,7 @@ class _WordsTabState extends State<WordsTab> {
             title: Text(words[index]),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => DictionaryTab(initialWord: words[index])))
+                  MaterialPageRoute(builder: (context) => DictionaryTab(initialWord: words[index], bookTitle: widget.bookTitle)))
                   .then((_) => loadWords());
             },
             trailing: IconButton(
@@ -79,7 +82,7 @@ class _WordsTabState extends State<WordsTab> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => DictionaryTab()))
+              MaterialPageRoute(builder: (context) => DictionaryTab(bookTitle: widget.bookTitle)))
               .then((_) => loadWords()); // Reload words after adding
         },
         child: Icon(Icons.add),
