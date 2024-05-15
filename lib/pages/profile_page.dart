@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:practice_proj/util/library_model.dart';
+import '../util/library_model.dart';
 import 'package:provider/provider.dart';
 import 'drawer.dart';
 import 'package:image_picker/image_picker.dart';
