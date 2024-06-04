@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'drawer.dart';
 import '../util/explore_book_card.dart';
+import 'config.dart';
 
 List<String> globalAddedCategories = [];
 
@@ -30,7 +31,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<List<Book>> fetchBooks(String query) async {
     final url = Uri.parse(
-        'https://www.googleapis.com/books/v1/volumes?q=$query&maxResults=10&key=AIzaSyDfp3NASLl6f_tbd7zbo490R8grLqW1psk');
+        'https://www.googleapis.com/books/v1/volumes?q=$query&maxResults=10&key=$apiKey');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
